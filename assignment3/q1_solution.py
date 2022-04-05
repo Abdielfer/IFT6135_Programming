@@ -1,4 +1,6 @@
+from inspect import trace
 import math
+import this
 import numpy as np
 import torch
 
@@ -17,9 +19,11 @@ def log_likelihood_bernoulli(mu, target):
     batch_size = mu.size(0)
     mu = mu.view(batch_size, -1)
     target = target.view(batch_size, -1)
-
-    # log_likelihood_bernoulli
-    return
+    un= target*torch.log(mu)
+    deux = torch.log(1-mu)*(1-target) 
+    troi = torch.add(un,deux)
+    ans = torch.sum(troi,1)
+    return ans
 
 
 def log_likelihood_normal(mu, logvar, z):
@@ -38,9 +42,14 @@ def log_likelihood_normal(mu, logvar, z):
     mu = mu.view(batch_size, -1)
     logvar = logvar.view(batch_size, -1)
     z = z.view(batch_size, -1)
-
+    n = mu.size(1)
+    sigma =  torch.exp(logvar)
+    const = (n/2)*np.log(2*math.pi)
+    lastTerm = (1/(2*sigma))*torch.sum((z-mu)^2,1) 
     # log normal
-    return
+    nll = -const-(n/2)*logvar-lastTerm
+    print(nll)
+    return nll
 
 
 def log_mean_exp(y):
