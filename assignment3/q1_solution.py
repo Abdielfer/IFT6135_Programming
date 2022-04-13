@@ -60,10 +60,12 @@ def log_mean_exp(y):
     """
     # init
     batch_size = y.size(0)
-    sample_size = y.size(1)
-
+    sample_size = y.size(1) 
     # log_mean_exp
-    return
+    a_i = torch.unsqueeze(torch.max(y,dim=1).values,1)
+    expon = torch.exp(y - a_i)
+    logMeanExp = torch.log(torch.mean(expon,dim = 1))
+    return logMeanExp + a_i
 
 
 def kl_gaussian_gaussian_analytic(mu_q, logvar_q, mu_p, logvar_p):
