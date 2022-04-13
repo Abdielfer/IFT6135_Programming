@@ -43,12 +43,9 @@ def log_likelihood_normal(mu, logvar, z):
     logvar = logvar.view(batch_size, -1)
     z = z.view(batch_size, -1)
     n = mu.size(1)
-    sigma =  torch.exp(logvar)
-    const = (n/2)*np.log(2*math.pi)
-    lastTerm = (1/(2*sigma))*torch.sum((z-mu)^2,1) 
-    # log normal
-    nll = -const-(n/2)*logvar-lastTerm
-    print(nll)
+    var =  torch.exp(logvar)
+    difCarre = ((z-mu)**2)/var
+    nll = torch.sum((-torch.log(torch.sqrt(2*math.pi*var))-0.5*difCarre),1)
     return nll
 
 
