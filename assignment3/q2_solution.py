@@ -21,9 +21,12 @@ def lp_reg(x, y, critic):
     :return: (FloatTensor) - shape: (1,) - Lipschitz penalty
     """
 
-
-    
-    pass
+    A = torch.zeros_like(critic(x)) 
+    B_1 = torch.abs(critic(x) - critic(y))
+    B_2 = torch.norm((x-y), p=2)
+    B = (B_1/B_2)-1
+    maxVal = torch.max(A,B)
+    return  torch.pow(maxVal,2)
 
 
 def vf_wasserstein_distance(p, q, critic):
@@ -40,7 +43,7 @@ def vf_wasserstein_distance(p, q, critic):
     :param critic: (Module) - torch module used to compute the Wasserstein distance
     :return: (FloatTensor) - shape: (1,) - Estimate of the Wasserstein distance
     """
-    pass
+    return torch.mean(critic(p) - critic(q))
 
 
 

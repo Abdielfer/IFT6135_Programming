@@ -23,18 +23,13 @@ def lp_reg(x, y, critic):
     # equation 7 was used as inspiration to do this function here
     tensor_input = x-y
     L2_norm = torch.norm(tensor_input, p='fro')
-
+    
     crit = critic(x)- critic(y)
     crit = torch.abs(crit)
-    #print("crit", crit)
 
     term_r = crit/L2_norm -1
     term_l = torch.zeros_like(crit/L2_norm)
     lp = torch.maximum(term_l, term_r)**2
-    # print("term_r = ", term_r)
-    # print("term_l = ", term_l)
-    # print("lp = ", lp)
-
     lp = lp.mean()
     return lp
 
