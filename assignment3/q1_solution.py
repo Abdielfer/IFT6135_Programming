@@ -65,7 +65,7 @@ def log_mean_exp(y):
     a_i = torch.unsqueeze(torch.max(y,dim=1).values,1)
     expon = torch.exp(y - a_i)
     logMeanExp = torch.log(torch.mean(expon,dim = 1))
-    return logMeanExp + a_i
+    return torch.unsqueeze(logMeanExp,1) + a_i
 
 
 def kl_gaussian_gaussian_analytic(mu_q, logvar_q, mu_p, logvar_p):
@@ -84,12 +84,25 @@ def kl_gaussian_gaussian_analytic(mu_q, logvar_q, mu_p, logvar_p):
     batch_size = mu_q.size(0)
     mu_q = mu_q.view(batch_size, -1)
     logvar_q = logvar_q.view(batch_size, -1)
+    var_q = torch.exp(logvar_q)  # most be Sigma^2
     mu_p = mu_p.view(batch_size, -1)
     logvar_p = logvar_p.view(batch_size, -1)
+    var_p = torch.exp(logvar_p) # most be Sigma^2
 
     # kld
-    return
+    '''
+        Ref: https://stats.stackexchange.com/questions/7440/kl-divergence-between-two-univariate-gaussians
+    '''
 
+    logSigmaDiv =  logvar_p-logvar_q
+    print("logSigmaDiv:  ", logSigmaDiv)
+    muDifSqr = torch.pow((mu_q-mu_p), 2)
+    print("muDifSqr:  ", muDifSqr)
+    ans = logSigmaDiv + ((var_q**2)+ muDifSqr)/(2*var_p**2)- 0.5 
+    print("ans:  ", ans)
+    return ans
+    
+    
 
 def kl_gaussian_gaussian_mc(mu_q, logvar_q, mu_p, logvar_p, num_samples=1):
     """ 
