@@ -125,11 +125,11 @@ def kl_gaussian_gaussian_mc(mu_q, logvar_q, mu_p, logvar_p, num_samples=1):
     '''
     ref : https://stats.stackexchange.com/questions/280885/estimate-the-kullback-leibler-kl-divergence-with-monte-carlo
     '''
-    var_q = torch.exp(logvar_q)  # most be Sigma^2
-    var_p = torch.exp(logvar_p)  # most be Sigma^2
+    var_q = torch.abs(torch.exp(logvar_q))  # most be Sigma^2
+    var_p = torch.abs(torch.exp(logvar_p))  # most be Sigma^2
     x = torch.normal(mu_q,var_q) # sampling from Normal Distribution P(q)
     log_q = -torch.log(torch.sqrt(2*math.pi*var_q))-(0.5 *  ((x-mu_q)**2/var_q))
     log_p = -torch.log(torch.sqrt(2*math.pi*var_p))-( 0.5 *  ((x-mu_p)**2/var_p))
-    kl_mc = torch.abs(torch.mean(log_q-log_p,1))
+    kl_mc = torch.mean(log_q-log_p,1)
     return kl_mc
     

@@ -74,6 +74,14 @@ class SimSiam(nn.Module):
         COMPLETE ME. DONT MODIFY THE PARAMETERS OF THE FUNCTION. Otherwise, tests might fail.
         Note that the outputs are differnt if stop_gradient is True or False
         """
+        z1,z2  = self.encoder(x1), self.encoder(x2)
+        if self.stop_gradient: 
+            z1 = z1.detach()
+            z2 = z2.detach()
+        return self.predictor(z1), self.predictor(z1), z1, z2
+
+
+
 
     def loss (self, p1,p2,z1,z2, similarity_function='CosineSimilarity'):
         """ 
