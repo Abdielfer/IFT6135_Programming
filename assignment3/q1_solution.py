@@ -85,21 +85,18 @@ def kl_gaussian_gaussian_analytic(mu_q, logvar_q, mu_p, logvar_p):
     mu_q = mu_q.view(batch_size, -1)
     logvar_q = logvar_q.view(batch_size, -1)
     var_q = torch.exp(logvar_q)  # most be Sigma^2
+    sigma_q = torch.sqrt(var_q)
     mu_p = mu_p.view(batch_size, -1)
     logvar_p = logvar_p.view(batch_size, -1)
     var_p = torch.exp(logvar_p) # most be Sigma^2
-
+    sigma_p = torch.sqrt(var_p)
     # kld
     '''
         Ref: https://stats.stackexchange.com/questions/7440/kl-divergence-between-two-univariate-gaussians
     '''
-
-    logSigmaDiv =  logvar_p-logvar_q
-    print("logSigmaDiv:  ", logSigmaDiv)
+    logSigmaDiv =  torch.log(sigma_p/sigma_q)
     muDifSqr = torch.pow((mu_q-mu_p), 2)
-    print("muDifSqr:  ", muDifSqr)
-    ans = logSigmaDiv + ((var_q**2)+ muDifSqr)/(2*var_p**2)- 0.5 
-    print("ans:  ", ans)
+    ans = torch.sum((logSigmaDiv + ((var_q+ muDifSqr)/(2*var_p))- 0.5),1)
     return ans
     
     
@@ -107,9 +104,8 @@ def kl_gaussian_gaussian_analytic(mu_q, logvar_q, mu_p, logvar_p):
 def kl_gaussian_gaussian_mc(mu_q, logvar_q, mu_p, logvar_p, num_samples=1):
     """ 
     COMPLETE ME. DONT MODIFY THE PARAMETERS OF THE FUNCTION. Otherwise, tests might fail.
-
+    
     *** note. ***
-
     :param mu_q: (FloatTensor) - shape: (batch_size x input_size) - The mean of first distributions (Normal distributions).
     :param logvar_q: (FloatTensor) - shape: (batch_size x input_size) - The log variance of first distributions (Normal distributions).
     :param mu_p: (FloatTensor) - shape: (batch_size x input_size) - The mean of second distributions (Normal distributions).
@@ -126,4 +122,14 @@ def kl_gaussian_gaussian_mc(mu_q, logvar_q, mu_p, logvar_p, num_samples=1):
     logvar_p = logvar_p.view(batch_size, -1).unsqueeze(1).expand(batch_size, num_samples, input_size)
 
     # kld
-    return
+    '''
+    ref : https://stats.stackexchange.com/questions/280885/estimate-the-kullback-leibler-kl-divergence-with-monte-carlo
+    '''
+    var_q = torch.exp(logvar_q)  # most be Sigma^2
+    var_q = torch.exp(logvar_q)  # most be Sigma^2
+    x = torch.normal(mu_q,var_q) # sampling from Normal Distribution P(q)
+    log_q = -torch.log(torch.sqrt(2*math.pi*var_q))-(0.5 *  ((x-mu_q)**2/var_q))
+    log_p = -torch.log(torch.sqrt(2*math.pi*var_q))-( 0.5 *  ((x-mu_p)**2/var_q))
+    kl_mc = torch.mean(log_q-log_p,1)
+    return kl_mc
+    
