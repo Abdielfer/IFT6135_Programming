@@ -20,10 +20,23 @@ def lp_reg(x, y, critic):
     :param critic: (Module) - torch module that you want to regularize.
     :return: (FloatTensor) - shape: (1,) - Lipschitz penalty
     """
+    # equation 7 was used as inspiration to do this function here
+    tensor_input = x-y
+    L2_norm = torch.norm(tensor_input, p='fro')
 
+    crit = critic(x)- critic(y)
+    crit = torch.abs(crit)
+    #print("crit", crit)
 
-    
-    pass
+    term_r = crit/L2_norm -1
+    term_l = torch.zeros_like(crit/L2_norm)
+    lp = torch.maximum(term_l, term_r)**2
+    # print("term_r = ", term_r)
+    # print("term_l = ", term_l)
+    # print("lp = ", lp)
+
+    lp = lp.mean()
+    return lp
 
 
 def vf_wasserstein_distance(p, q, critic):
@@ -40,7 +53,10 @@ def vf_wasserstein_distance(p, q, critic):
     :param critic: (Module) - torch module used to compute the Wasserstein distance
     :return: (FloatTensor) - shape: (1,) - Estimate of the Wasserstein distance
     """
-    pass
+    mean_c_p = torch.mean(critic(p))
+    mean_c_q = torch.mean(critic(q))
+    wasser_stein_distance = torch.mean(mean_c_p - mean_c_q)
+    return wasser_stein_distance
 
 
 
@@ -95,3 +111,4 @@ if __name__ == '__main__':
 
 
     # COMPLETE QUALITATIVE EVALUATION
+
