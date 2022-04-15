@@ -100,8 +100,8 @@ class SimSiam(nn.Module):
         COMPLETE ME. DONT MODIFY THE PARAMETERS OF THE FUNCTION. Otherwise, tests might fail.
         """
 
-        cosinesim = CosineSimilarity()
-        ssiam_loss = -1/2 *(torch.mean(cosinesim.forward(p1,z2))) - 1/2 *(torch.mean(cosinesim.forward(p2,z1)))
+        cosSim = CosineSimilarity()
+        ssiam_loss = -1/2 *(torch.mean(cosSim.forward(p1,z2))) - 1/2 *(torch.mean(cosSim.forward(p2,z1)))
         return ssiam_loss
 
 
@@ -156,8 +156,8 @@ class CosineSimilarity(Module):
         #epsilon = torch.full_like(dot_prod, fill_value=self.eps) # is equivalent to the one below
         epsilon = torch.full(dot_prod.size(), fill_value=self.eps)
         maxi = torch.maximum(x_1_norm * x_2_norm, epsilon)
-
         cos_similarity = torch.div(dot_prod , maxi)
         return cos_similarity 
+
 
 

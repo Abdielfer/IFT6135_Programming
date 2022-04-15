@@ -93,6 +93,13 @@ class SimSiam(nn.Module):
         """
         COMPLETE ME. DONT MODIFY THE PARAMETERS OF THE FUNCTION. Otherwise, tests might fail.
         """
+        cosSim = CosineSimilarity()
+        ssLoss = -0.5*cosSim.forward(p1,z2)-0.5 *cosSim.forward(p2,z1)
+        return torch.mean(ssLoss)
+        
+
+
+
 
 # you might need this function when implementing CosineSimilarity forward function
 def bdot(a, b):
@@ -138,4 +145,13 @@ class CosineSimilarity(Module):
         """
         """
         COMPLETE ME. DONT MODIFY THE PARAMETERS OF THE FUNCTION. Otherwise, tests might fail.
+
+        ref: https://medium.com/geekculture/cosine-similarity-and-cosine-distance-48eed889a5c4#:~:text=Save-,Machine%20Learning%20Fundamentals%3A%20Cosine%20Similarity%20and%20Cosine%20Distance,they%20are%20to%20each%20other.
+           + combining with eps to avoid zero divition. 
         """
+        numerator = bdot(x1, x2)
+        x1_norm = torch.norm(x1,p = 2, dim = 1)
+        x2_norm = torch.norm(x2,p = 2, dim = 1)
+        eps = torch.ones_like(numerator)*self.eps
+        return torch.div(numerator,torch.max((x1_norm* x2_norm),eps)) 
+
